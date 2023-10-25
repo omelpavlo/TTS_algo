@@ -7,4 +7,4 @@ Data Input: Replace the synthetic_data function or modify its internals to impor
 
 Algorithm Parameters: Depending on your dataset, you might need to adjust parameters such as num_instances, num_runs, and success_prob to better suit your specific requirements.
 
-Custom Functions: If your dataset requires any preprocessing or specific handling, you might need to introduce new functions or modify existing ones in the script.
+Histogram generation: comment out histogram-generating pieces of code, the last two lines before the return in the main()
