@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 
@@ -14,9 +15,14 @@ def estimate_theta(r, y, alpha=0.5, beta=0.5):
     return np.random.beta(alpha + y, beta + r - y)
 
 
-def calculate_R99(theta):
+def calculate_r99(theta):
     # calculates R_99 for a given probability theta
-    return np.log(1-0.99)/np.log(1-theta)
+    if theta != 1:
+        r99 = np.log(1-0.99)/np.log(1-theta)
+    else:
+        # avoids dividing by zero
+        r99 = 1.0
+    return r99
 
 
     
@@ -25,7 +31,7 @@ def bootstrap(Instance_data, B=500, q=0.6):
     q_percentile=[] 
     
     for b in range(B):
-        
+    # bootstrap to gather statistics for the R_99 values    
     
         # randomly select a number of instances from the instance set with replacement
         sampled_instances = []
@@ -34,37 +40,37 @@ def bootstrap(Instance_data, B=500, q=0.6):
             sampled_instances.append(Instance_data[random_index])
       
     
-        R_99_values = [] 
-    
+        r99_values = [] 
+        
+        # calculate R_99 for each instance    
         for j, instance in enumerate(sampled_instances):
             r = len(instance)
             y = sum(instance)
             theta = estimate_theta(r,y)
-            R99 = calculate_R99(theta)
-            R_99_values.append(R99)
+            r99 = calculate_r99(theta)
+            r99_values.append(r99)
         
     
-        q_percentile.append(np.percentile(R_99_values,q))
+        q_percentile.append(np.percentile(r99_values,q))
     
-    return q_percentile
+    return q_percentile # returns a distribution of TTS values for the given set of instances
 
     
 def main():
     # Sample synthetic data
     generated_instances = synthetic_data(num_instances = 10, num_runs = 100, success_prob = 0.05)
 
-    # Time for the Monte Carlo algorithm to run once, assuming its the same for every run
+    # Time for the Monte Carlo algorithm to run once, assuming it's the same for every run
     tau = 1
     
     # Bootstrap to estimate the TTS distribution
     tts_distribution = bootstrap(generated_instances, B = 500, q = 0.1)*tau
-    
+
+
+    ### Below is for the purposes of testing the code
+    plt.hist(tts_distribution_tst,100)
+    plt.show()
         
     return tts_distribution
 
-
-### Below is for the purposes of testing the code
-tts_distribution_tst = main()
-import matplotlib.pyplot as plt
-plt.hist(tts_distribution_tst,100)
-plt.show()
+tts_distribution = main()
